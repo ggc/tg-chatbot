@@ -34,9 +34,9 @@ app.use('/', index);
 app.use('/users', users);
 
 bot.on('text', msg => {
-	let fromId = msg.from.id;
-	let firstName = msg.from.first_name;
-	let reply = msg.message_id;
+	var fromId = msg.from.id;
+	var firstName = msg.from.first_name;
+	var reply = msg.message_id;
 	return bot.sendMessage(fromId, `Welcome, ${ firstName }!`, { reply });
 });
 
