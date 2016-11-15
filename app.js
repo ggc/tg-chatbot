@@ -13,7 +13,7 @@ var index = require('./routes/index'),
 var app = express();
 //TODO: Take out token
 var bot = new TeleBot({
-	token: '286209648:AAGGOAddklYJphod4lg-u6gyfhKZzr3mgMw'
+	token: process.env.TG_TOKEN
 });
 
 // view engine setup
