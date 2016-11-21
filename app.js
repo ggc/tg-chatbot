@@ -5,17 +5,14 @@ var express = require('express'),
 	logger = require('morgan'),
 	cookieParser = require('cookie-parser'),
 	bodyParser = require('body-parser'),
-	TeleBot = require('telebot');
+	Telegraf = require('telegraf');
 
 
-var index = require('./routes/index'),
-	users = require('./routes/users');
+var index = require('./routes/index');
 
 var app = express();
-//TODO: Take out token
-var bot = new TeleBot({
-	token: process.env.TG_TOKEN
-});
+console.log('> Token: ' + process.env.BOT_TOKEN)
+var bot = new Telegraf(process.env.BOT_TOKEN);
 
 var workTime;
 
@@ -33,7 +30,6 @@ app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/users', users);
 
 var timerId;
 function work(msg) {
@@ -50,38 +46,24 @@ function rest(msg) {
 };
 
 // Use this to log every message
-bot.on('text', msg => {
+bot.on('text', (ctx) => ctx.telegram.sendCopy(ctx.from.id, ctx.message))
+bot.startPolling()
 
-	console.log(`[msg] ${ msg.chat.id } ${ msg.text }`);
-});
 // Shows a brief description about bot
-bot.on('/about', msg => {
-	return bot.sendMessage(msg.chat.id, 'This is suppose to improve work');
-});
+bot.command('about', ctx => {
+	ctx.reply('Bot telegram to schedule pomodoro and share tasks');
+})
 // Start the pomodoro timer. Starts on Rest mode, of course
 //TODO: Move to /start command
-bot.on('/work', msg => {
-	work(msg);
+bot.command('work', ctx => {
+	ctx.reply('Work!');
+	// work();
 })
 // Ends pomodoro timer
-bot.on('/rest', msg => {
+bot.command('rest', ctx => {
 	clearTimeout(timerId);
-	return bot.sendMessage(msg.chat.id, `You can go home, ${msg.from.first_name}`);	
+	ctx.reply(`You can go home, ${msg.from.first_name}`);	
 });
-// Command to set time intervals and modes
-bot.on('/config', msg => {
-
-});
-// Add task to the DB
-bot.on('/add', msg => {
-	
-});
-// Show own tasks
-bot.on('/show', msg => {
-	
-});
-
-bot.connect();
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
