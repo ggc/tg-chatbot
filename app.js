@@ -1,18 +1,17 @@
 'use strict';
+require('./models/db')
+require('./bot')
 var express = require('express'),
 	path = require('path'),
 	favicon = require('serve-favicon'),
 	logger = require('morgan'),
 	cookieParser = require('cookie-parser'),
-	bodyParser = require('body-parser'),
-	Telegraf = require('telegraf');
+	bodyParser = require('body-parser');
 
 
 var index = require('./routes/index');
 
 var app = express();
-console.log('> Token: ' + process.env.BOT_TOKEN)
-var bot = new Telegraf(process.env.BOT_TOKEN);
 
 var workTime;
 
@@ -30,40 +29,6 @@ app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-
-var timerId;
-function work(msg) {
-	bot.sendMessage(msg.chat.id, '> Prepare to sprint');
-	timerId = setTimeout(()=>{
-		rest(msg);
-	}, 30*1000);
-};
-function rest(msg) {
-	bot.sendMessage(msg.chat.id, '> Rest');
-	timerId = setTimeout(()=>{
-		work(msg);
-	}, 5*1000);
-};
-
-// Use this to log every message
-bot.on('text', (ctx) => ctx.telegram.sendCopy(ctx.from.id, ctx.message))
-bot.startPolling()
-
-// Shows a brief description about bot
-bot.command('about', ctx => {
-	ctx.reply('Bot telegram to schedule pomodoro and share tasks');
-})
-// Start the pomodoro timer. Starts on Rest mode, of course
-//TODO: Move to /start command
-bot.command('work', ctx => {
-	ctx.reply('Work!');
-	// work();
-})
-// Ends pomodoro timer
-bot.command('rest', ctx => {
-	clearTimeout(timerId);
-	ctx.reply(`You can go home, ${msg.from.first_name}`);	
-});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
