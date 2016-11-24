@@ -9,7 +9,8 @@ var express = require('express'),
 	bodyParser = require('body-parser');
 
 
-var index = require('./routes/index');
+var routes = require('./routes/index');
+var routesAPI = require('./api_server/routes/index');
 
 var app = express();
 
@@ -28,7 +29,8 @@ app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
+app.use('/', routes);
+app.use('/api', routesAPI);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,6 +1,6 @@
 var telegraf = require('telegraf')
 var mongoose = require('mongoose')
-var Task = mongoose.model('Task')
+var Task = mongoose.model('Tasks')
 
 var bot = new telegraf(process.env.BOT_TOKEN);
 console.log('> Token: ' + process.env.BOT_TOKEN)
@@ -41,11 +41,15 @@ bot.command('rest', ctx => {
 });
 // Add tasks
 bot.command('add', ctx => {
-	// Task.create({
-
-	// })
+	ctx.reply(`args: ${ctx.message.text}`)
+	Task.create({
+		title: "Remove hardcoded info",
+		description: "Change this task info for msg arguments"
+	});
 });
-bot.command('list', ctx => {})
+bot.command('list', ctx => {
+	ctx.reply(Task.find());
+})
 bot.command('delete', ctx => {})
 bot.command('change', ctx => {})
 

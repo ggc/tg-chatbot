@@ -5,4 +5,4 @@ var taskSchema = new mongoose.Schema({
 	description: String
 })
 
-mongoose.model('Task', taskSchema)
+mongoose.model('Tasks', taskSchema)
