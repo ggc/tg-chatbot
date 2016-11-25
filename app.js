@@ -1,6 +1,6 @@
 'use strict';
-require('./models/db')
-require('./bot')
+require('./app_api/models/db')
+require('./app_server/bot')
 var express = require('express'),
 	path = require('path'),
 	favicon = require('serve-favicon'),
@@ -9,15 +9,15 @@ var express = require('express'),
 	bodyParser = require('body-parser');
 
 
-var routes = require('./routes/index');
-var routesAPI = require('./api_server/routes/index');
+var routes = require('./app_server/routes/index')
+var routesAPI = require('./app_api/routes/index')
 
 var app = express();
 
 var workTime;
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'app_client', 'views'));
 app.set('view engine', 'pug');
 
 // uncomment after placing your favicon in /public
