@@ -79,21 +79,19 @@ bot.command('list', ctx => {
 // Add task to DB
 // Options: -l, --local    Default. Used to add personal tasks
 bot.command('add', ctx => {
+	let task = ctx.message.text.split(' - ')
+	if(task.length < 2)
+		ctx.reply("Use it like this: \n/add <task_name> - <task_description>")
 	requestOptions = {
 		url: apiOptions.server + '/api/task/',
-		method: 'POST'
-	}
-	request(requestOptions, (err, res, body) => {
-		let taskListRaw = JSON.parse(body);
-		console.log(taskListRaw[0])
-		if( res.statusCode === 200 && taskListRaw.length){
-			for( let task in taskListRaw) {
-				console.log('>task: ',task)
-				ctx.reply(task + ': ' + taskListRaw[task].title + '\n' + taskListRaw[task].description);
-			}
+		method: 'POST',
+		json: {
+			title: task[0].substring(4),
+			description: task.length>1 ? task[1] : ''
 		}
-		else
-			ctx.reply("These aren't the tasks you are looking for.")
+	}
+	request(requestOptions,( err, res, body) => {
+
 	})
 });
 
