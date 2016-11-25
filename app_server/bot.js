@@ -1,8 +1,13 @@
+let request = require('request')
 var telegraf = require('telegraf')
 var mongoose = require('mongoose')
 var Task = mongoose.model('Tasks')
 
 var bot = new telegraf(process.env.BOT_TOKEN);
+
+let apiOptions = {
+	server: 'http://localhost:5000'
+}
 
 var timerId;
 function work(ctx) {
@@ -20,7 +25,7 @@ function rest(ctx) {
 
 
 // Use this to log every message
-bot.on('text', (ctx) => ctx.telegram.sendCopy(ctx.from.id, ctx.message))
+// bot.on('text', (ctx) => ctx.telegram.sendCopy(ctx.from.id, ctx.message))
 
 
 // Use: /about
@@ -48,22 +53,49 @@ bot.command('rest', ctx => {
 });
 
 
+// Use: /list [options]
+bot.command('list', ctx => {
+	requestOptions = {
+		url: apiOptions.server + '/api/tasks'
+	}
+	request(requestOptions, (err, res, body) => {
+		let taskListRaw = JSON.parse(body);
+		let taskList = '';
+		// console.log(taskListRaw[0])
+		if( res.statusCode === 200 && taskListRaw.length){
+			for( let task in taskListRaw) {
+				// console.log('>task: ',task)
+				taskList += task + ': <b>' + taskListRaw[task].title + '</b>\n\t' + taskListRaw[task].description + '\n'
+			}
+			ctx.replyWithHTML(taskList);
+		}
+		else
+			ctx.reply("These aren't the tasks you are looking for.")
+	})
+})
+
+
 // Use: /add [options] <task_title> [<task_description>]
 // Add task to DB
 // Options: -l, --local    Default. Used to add personal tasks
 bot.command('add', ctx => {
-	ctx.reply(`args: ${ctx.message.text}`)
-	Task.create({
-		title: "Remove hardcoded info",
-		description: "Change this task info for msg arguments"
-	});
+	requestOptions = {
+		url: apiOptions.server + '/api/task/',
+		method: 'POST'
+	}
+	request(requestOptions, (err, res, body) => {
+		let taskListRaw = JSON.parse(body);
+		console.log(taskListRaw[0])
+		if( res.statusCode === 200 && taskListRaw.length){
+			for( let task in taskListRaw) {
+				console.log('>task: ',task)
+				ctx.reply(task + ': ' + taskListRaw[task].title + '\n' + taskListRaw[task].description);
+			}
+		}
+		else
+			ctx.reply("These aren't the tasks you are looking for.")
+	})
 });
-
-
-// Use: /list [options]
-bot.command('list', ctx => {
-	ctx.reply(Task.find());
-})
 
 
 // Use: /delete [options] ...
