@@ -4,7 +4,7 @@ var mongoose = require('mongoose')
 var Task = mongoose.model('Tasks')
 
 var bot = new telegraf(process.env.BOT_TOKEN);
-
+console.log('bot_token:',process.env.BOT_TOKEN)
 let apiOptions = {
 	server: 'http://localhost:5000'
 }
@@ -22,10 +22,6 @@ function rest(ctx) {
 		work(ctx);
 	}, 5*1000);
 };
-
-
-// Use this to log every message
-bot.on('text', (ctx) => ctx.telegram.sendCopy(ctx.from.id, ctx.message))
 
 
 // Use: /about
@@ -112,7 +108,7 @@ bot.catch( (err) => {
 
 bot.startPolling()
 
-// bot.telegram.setWebHook('https://pomodoritbot.herokuapp.com')
+// bot.telegram.removeWebHook().then( console.log('removeWebHook promise fulfilled'))
 
 // bot.startWebHook('/webhook', null, 5000)
 

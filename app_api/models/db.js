@@ -4,9 +4,7 @@ let dbURI = 'mongodb://localhost/pomodoro'
 if(process.env.NODE_ENV === 'production')
 	dbURI = process.env.dbURI
 
-mongoose.connect(dbURI, (err) => {
-	if(err) console.log('MongoDB error: ', err)
-})
+mongoose.connect(dbURI)
 
 mongoose.connection.on('connected', () => console.log('Mongoose connected to ', dbURI))
 mongoose.connection.on('disconnected', () => console.log('Mongoose disconnected from ', dbURI))
