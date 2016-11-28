@@ -1,20 +1,39 @@
 let request = require('request')
-var telegraf = require('telegraf')
-var mongoose = require('mongoose')
-var Task = mongoose.model('Tasks')
+let telegraf = require('telegraf')
+let mongoose = require('mongoose')
+let Task = mongoose.model('Tasks')
 
-var bot = new telegraf(process.env.BOT_TOKEN);
+let bot = new telegraf(process.env.BOT_TOKEN)
 console.log('bot_token:',process.env.BOT_TOKEN)
+
 let apiOptions = {
 	server: 'http://localhost:5000'
 }
 
-var timerId;
+let timerId;
 function work(ctx) {
 	ctx.telegram.sendMessage(ctx.message.chat.id, `> Prepare to sprint, ${ctx.message.from.first_name}`)
-	timerId = setTimeout(()=>{
-		rest(ctx);
-	}, 30*1000);
+	requestOptions = {
+		url: apiOptions.server + '/api/tasks'
+	}
+	request(requestOptions, (err, res, body) => {
+		let taskListRaw = JSON.parse(body);
+		let taskList = '';
+		// console.log(taskListRaw[0])
+		if( res.statusCode === 200 && taskListRaw.length){
+			for( let task in taskListRaw) {
+				// console.log('>task: ',task)
+				taskList += task + ': <b>' + taskListRaw[task].title + '</b>\n\t' + taskListRaw[task].description + '\n'
+			}
+			ctx.replyWithHTML(taskList);
+		}
+		else
+			ctx.reply("No tasks added")
+		
+		timerId = setTimeout(()=>{
+			rest(ctx);
+		}, 30*1000);
+	})
 };
 function rest(ctx) {
 	ctx.telegram.sendMessage(ctx.message.chat.id, `> Rest ${ctx.message.from.first_name}`);
@@ -23,6 +42,72 @@ function rest(ctx) {
 	}, 5*1000);
 };
 
+
+bot.on('inline_query', (ctx) => {
+	let query = ctx.inlineQuery.query
+	let cmdIndex = query.indexOf(' ') < 1 ? query.length : query.indexOf(' ')
+	let cmd = query.substr( 0, cmdIndex )
+	query = query.substr( cmdIndex )
+	console.log('> inline ', cmd, query)
+	switch(cmd){
+		case 'list': 
+			let queryAnswer = []
+			requestOptions = {
+				url: apiOptions.server + '/api/tasks'
+			}
+			request(requestOptions, (err, res, body) => {
+				let taskListRaw = JSON.parse(body);
+				let taskList = '';
+				if( res.statusCode === 200 && taskListRaw.length){
+					for( let task in taskListRaw) {
+						queryAnswer.push({
+							id: taskListRaw[task]._id,
+							title: taskListRaw[task].title,
+							description:taskListRaw[task].description,
+							url: 'https://www.google.com',
+							type: 'article',
+							input_message_content:{
+								message_text: 'Redirecting to google...'
+							}
+						})
+					}
+					ctx.answerInlineQuery(queryAnswer)
+				}
+				else
+					ctx.answerInlineQuery("These aren't the tasks you are looking for.")
+			})
+			break;
+		case 'add':
+			let task = query.split(' - ')
+			ctx.answerInlineQuery([
+			{
+				id: task[0],
+				title: task[0],
+				description: task[1],
+				type: 'article',
+				input_message_content:{
+					message_text: 'A donde vamos?'
+				},
+				reply_markup: {
+					inline_keyboard: [
+						[{text: 'Google', url: 'www.google.com'},
+						{text: 'Thomman guitars', url: 'www.thomman.com'}]
+					]
+				}
+			}])
+			break;
+		case 'delete':
+			break;
+		case 'work':
+			break;
+		case 'rest':
+			break;
+		// TODO: complete
+		default:
+			return ctx.answerInlineQuery([])
+			break;
+	}
+})
 
 // Use: /about
 // Shows a brief description about bot
@@ -107,11 +192,3 @@ bot.catch( (err) => {
 
 
 bot.startPolling()
-
-// bot.telegram.removeWebHook().then( console.log('removeWebHook promise fulfilled'))
-
-// bot.startWebHook('/webhook', null, 5000)
-
-// bot.on('text', (ctx) => {
-// 	ctx.reply('Webhook reply')
-// })
