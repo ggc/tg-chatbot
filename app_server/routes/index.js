@@ -6,4 +6,7 @@ router.get('/', function(req, res, next) {
 	res.render('index');
 });
 
+router.post('/webhook', (req, res, next) => {
+	console.log('> post to /webhook: ' + req)
+})
 module.exports = router;

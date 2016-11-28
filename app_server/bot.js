@@ -25,7 +25,7 @@ function rest(ctx) {
 
 
 // Use this to log every message
-// bot.on('text', (ctx) => ctx.telegram.sendCopy(ctx.from.id, ctx.message))
+bot.on('text', (ctx) => ctx.telegram.sendCopy(ctx.from.id, ctx.message))
 
 
 // Use: /about
@@ -111,3 +111,11 @@ bot.catch( (err) => {
 
 
 bot.startPolling()
+
+// bot.telegram.setWebHook('https://pomodoritbot.herokuapp.com')
+
+// bot.startWebHook('/webhook', null, 5000)
+
+// bot.on('text', (ctx) => {
+// 	ctx.reply('Webhook reply')
+// })
