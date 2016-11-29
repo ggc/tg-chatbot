@@ -1,13 +1,19 @@
 'use strict';
 let express = require('express'),
 	path = require('path'),
+	fs = require('fs'),
 	favicon = require('serve-favicon'),
 	logger = require('morgan'),
 	cookieParser = require('cookie-parser'),
 	bodyParser = require('body-parser'),
 	passport = require('passport'),
 	githubStrategy = require('passport-github').Strategy
-path.exists( '.env', (exists) => require('dotenv').config() )
+fs.stat('.env', (err, stat) => {
+	if(err == null)
+		require('dotenv').config()
+	else if(err.code == 'ENOENT')
+		console.log('ERROR: .env doesn\'t exist')
+})
 require('./app_api/models/db')
 require('./app_server/bot')
 require('./app_server/passport-config')(passport)
