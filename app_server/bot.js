@@ -18,7 +18,7 @@ function work(ctx) {
 	}
 	request(requestOptions, (err, res, body) => {
 		let taskListRaw = JSON.parse(body);
-		let taskList = '';
+		let taskList = 'What about work on some of these?\n';
 		// console.log(taskListRaw[0])
 		if( res.statusCode === 200 && taskListRaw.length){
 			for( let task in taskListRaw) {
@@ -48,7 +48,7 @@ bot.on('inline_query', (ctx) => {
 	let cmdIndex = query.indexOf(' ') < 1 ? query.length : query.indexOf(' ')
 	let cmd = query.substr( 0, cmdIndex )
 	query = query.substr( cmdIndex )
-	console.log('> inline ', cmd, query)
+	// console.log('> inline ', cmd, query)
 	switch(cmd){
 		case 'list': 
 			let queryAnswer = []

@@ -4,9 +4,9 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('scrumit-bot:server');
-var http = require('http');
+var app = require('../app')
+	debug = require('debug')('scrumit-bot:server'),
+	http = require('http')
 
 /**
  * Create HTTP server.

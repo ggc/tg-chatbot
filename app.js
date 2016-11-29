@@ -1,20 +1,23 @@
 'use strict';
-require('./app_api/models/db')
-require('./app_server/bot')
-var express = require('express'),
+let express = require('express'),
 	path = require('path'),
 	favicon = require('serve-favicon'),
 	logger = require('morgan'),
 	cookieParser = require('cookie-parser'),
-	bodyParser = require('body-parser');
+	bodyParser = require('body-parser'),
+	passport = require('passport'),
+	githubStrategy = require('passport-github').Strategy
+require('dotenv').config()
+require('./app_api/models/db')
+require('./app_server/bot')
+require('./app_server/passport-config')(passport)
 
+// let routes = require('./app_server/routes/index')
+let routesAPI = require('./app_api/routes/index')
 
-var routes = require('./app_server/routes/index')
-var routesAPI = require('./app_api/routes/index')
+let app = express();
 
-var app = express();
-
-var workTime;
+let workTime;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'app_client', 'views'));
@@ -29,12 +32,16 @@ app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(passport.initialize())
+app.use(passport.session())
+
+let routes = require('./app_server/routes/index')(passport)
 app.use('/', routes);
 app.use('/api', routesAPI);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  let err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
