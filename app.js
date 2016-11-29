@@ -7,7 +7,7 @@ let express = require('express'),
 	bodyParser = require('body-parser'),
 	passport = require('passport'),
 	githubStrategy = require('passport-github').Strategy
-require('dotenv').config()
+path.exists( '.env', (exists) => require('dotenv').config() )
 require('./app_api/models/db')
 require('./app_server/bot')
 require('./app_server/passport-config')(passport)

@@ -4,7 +4,7 @@ let mongoose = require('mongoose')
 let Task = mongoose.model('Tasks')
 
 let bot = new telegraf(process.env.BOT_TOKEN)
-console.log('bot_token:',process.env.BOT_TOKEN)
+// console.log('bot_token:',process.env.BOT_TOKEN)
 
 let apiOptions = {
 	server: 'http://localhost:5000'
