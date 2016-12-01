@@ -1,7 +1,7 @@
 let request = require('request')
 let telegraf = require('telegraf')
 let mongoose = require('mongoose')
-let Task = mongoose.model('Tasks')
+let Task = mongoose.model('Task')
 
 let bot = new telegraf(process.env.BOT_TOKEN)
 // console.log('bot_token:',process.env.BOT_TOKEN)

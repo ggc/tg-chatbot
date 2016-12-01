@@ -7,4 +7,4 @@ var taskSchema = new mongoose.Schema({
 	completed: Boolean
 })
 
-mongoose.model('Tasks', taskSchema)
+mongoose.model('Task', taskSchema)

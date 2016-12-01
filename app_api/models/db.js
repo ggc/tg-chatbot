@@ -31,4 +31,5 @@ var gracefulShutdown = function (msg, callback) {
 };
 
 
-require('./tasks');
+require('./task');
+require('./user');

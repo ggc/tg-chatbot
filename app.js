@@ -8,12 +8,12 @@ let express = require('express'),
 	bodyParser = require('body-parser'),
 	passport = require('passport'),
 	githubStrategy = require('passport-github').Strategy
-fs.stat('.env', (err, stat) => {
-	if(err == null)
+// fs.stat('.env', (err, stat) => {
+// 	if(err == null)
 		require('dotenv').config()
-	else if(err.code == 'ENOENT')
-		console.log('ERROR: .env doesn\'t exist')
-})
+	// else if(err.code == 'ENOENT')
+	// 	console.log('ERROR: .env doesn\'t exist')
+// })
 require('./app_api/models/db')
 require('./app_server/bot')
 require('./app_server/passport-config')(passport)
@@ -32,7 +32,7 @@ app.set('view engine', 'pug');
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));

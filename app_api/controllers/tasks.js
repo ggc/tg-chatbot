@@ -1,5 +1,5 @@
 let mongoose = require('mongoose')
-let Tasks = mongoose.model('Tasks')
+let Tasks = mongoose.model('Task')
 
 module.exports.listTasks = (req, res) => {
 	Tasks
