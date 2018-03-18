@@ -3,40 +3,40 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"time"
+	"strings"
 
+	"./server"
 	"github.com/gocolly/colly"
-	"github.com/gocolly/colly/debug"
 	"gopkg.in/telegram-bot-api.v4"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<h1 class='header'>Hello world!</h1>")
-}
-
 func main() {
-	chatText := make(chan string)
+	chatText := make(chan string, 10)
+	serverRunning := make(chan bool)
 
 	/* Start a server to provide content */
-	go func() {
-		http.HandleFunc("/", handler)
-		fmt.Println("Server listening at 8080")
-		log.Fatal(http.ListenAndServe(":8080", nil))
-	}()
+	go server.Mock(serverRunning)
+	<-serverRunning
 
 	/* Fetch the content */
 	fmt.Println("Starting scraping process...")
-	c := colly.NewCollector(
-		colly.Async(true),
-		colly.Debugger(&debug.LogDebugger{}),
-	)
+	c := colly.NewCollector()
 
-	c.OnHTML("h1", func(e *colly.HTMLElement) {
-		head := e.Attr("class")
-		chatText <- e.Text
-		// Print head
-		fmt.Printf("Head found: %q -> %s\n", e.Text, head)
+	// c.OnHTML(".row-fluid", func(e *colly.HTMLElement) {
+	c.OnHTML("div[id=result-set]", func(e *colly.HTMLElement) {
+		fmt.Println("found a list of items")
+		e.ForEach("div[data-item-id]", func(_ int, el *colly.HTMLElement) {
+			fmt.Println("found an item inside")
+			strikedPrice := el.ChildText(".strike")
+			if strikedPrice == "" {
+				return
+			}
+			itemID := el.Attr("data-item-id")
+			name := el.ChildText(".title")
+			currentPrice := el.ChildText(".curr")
+			chatText <- strings.Join([]string{name, strikedPrice}, "\n")
+			fmt.Printf("Content found: %q \n %s \n %s \n %s \n", itemID, name, currentPrice, strikedPrice)
+		})
 	})
 
 	c.OnRequest(func(r *colly.Request) {
@@ -44,15 +44,13 @@ func main() {
 	})
 
 	fmt.Println("Ready to visit localhost:8080...")
-	ticker := time.NewTicker(5000 * time.Millisecond)
-	go func() {
-		for t := range ticker.C {
-			fmt.Printf("[%d]Tick! Visiting localhost:8080\n", t)
-			c.Visit("http://localhost:8080")
-		}
-	}()
+	// ticker := time.NewTicker(5000 * time.Millisecond)
+	// for t := range ticker.C {
+	// fmt.Printf("[%02d:%02d:%02d]Tick! Visiting localhost:8080\n", t.Hour(), t.Minute(), t.Second())
+	c.Visit("http://localhost:8080")
+	// }
 
-	/* Start the chatbot */
+	// /* Start the chatbot */
 	fmt.Println("Starting chatbot...")
 	bot, err := tgbotapi.NewBotAPI("<botToken>")
 	if err != nil {
@@ -74,10 +72,9 @@ func main() {
 		}
 
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, <-chatText)
-		msg.ReplyToMessageID = update.Message.MessageID
-
-		bot.Send(msg)
+		for item := range chatText {
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, item)
+			bot.Send(msg)
+		}
 	}
 }
