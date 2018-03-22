@@ -1,28 +1,20 @@
-package main
+package chatbot
 
 import (
 	"fmt"
 	"log"
 
-	"./scraper"
-	"./server"
+	"../commons"
+
 	"gopkg.in/telegram-bot-api.v4"
 )
 
-func main() {
-	msgChannel := make(chan string, 10)
-	serverRunning := make(chan bool)
+// Start a new chatbot
+func Start(msgChannel chan string) {
+	cfg := config.GetConfiguration()
 
-	/* Start a server to provide content */
-	go server.Mock(serverRunning)
-	<-serverRunning
-
-	/* Fetch the content */
-	scraper.Start(msgChannel)
-
-	// /* Start the chatbot */
 	fmt.Println("Starting chatbot...")
-	bot, err := tgbotapi.NewBotAPI("<botToken>")
+	bot, err := tgbotapi.NewBotAPI(cfg.Telegram["bot_token"].(string))
 	if err != nil {
 		log.Panic(err)
 	}
@@ -35,16 +27,23 @@ func main() {
 	u.Timeout = 60
 
 	updates, err := bot.GetUpdatesChan(u)
+	msgChannel <- "Hello user!"
 
 	for update := range updates {
 		if update.Message == nil {
 			continue
 		}
+		// Command
 
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 		for item := range msgChannel {
+			log.Printf(">>> [sending] item: %+v", item)
+			photo := tgbotapi.NewPhotoUpload(update.Message.Chat.ID, "./assets/images/OK_thumb.png")
+			photo.Caption = "GET REKT"
+			log.Printf(">>> [sending] photo: %+v", photo)
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, item)
-			bot.Send(msg)
+			log.Printf(">>> [sending] message: %+v", msg)
+			bot.Send(photo)
 		}
 	}
 }
