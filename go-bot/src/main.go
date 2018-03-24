@@ -3,23 +3,20 @@ package main
 import (
 	"./chatbot"
 	"./commons"
+	"./server"
 )
 
-var cfg config.Config
+var cfg commons.Config
 
 func main() {
-	config.GetConfiguration()
+	commons.GetConfiguration()
 
-	msgChannel := make(chan string, 10)
-	// serverRunning := make(chan bool)
+	serverRunning := make(chan bool)
 
 	/* Start a server to provide content */
-	// go server.Mock(serverRunning)
-	// <-serverRunning
+	go server.Mock(serverRunning)
+	<-serverRunning
 
-	/* Fetch the content */
-	// scraper.Start(msgChannel)
-
-	// /* Start the chatbot */
-	chatbot.Start(msgChannel)
+	/* Start the chatbot */
+	chatbot.Start()
 }

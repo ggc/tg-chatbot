@@ -1,8 +1,9 @@
-package config
+package commons
 
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/BurntSushi/toml"
 )
@@ -22,6 +23,25 @@ type telegram struct {
 type Config struct {
 	Debug    bool
 	Telegram map[string]interface{}
+}
+
+type Product struct {
+	Id          string
+	Name        string
+	Description string
+	Url         string
+	Price       float64
+}
+
+func FloatToStr(fv float64) string {
+	return strconv.FormatFloat(fv, 'f', 2, 64)
+}
+
+func StrToFloat(s string) float64 {
+	if f, err := strconv.ParseFloat(s, 64); err == nil {
+		return f
+	}
+	return 0
 }
 
 // GetConfiguration return the cfg singleton object
