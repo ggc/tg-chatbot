@@ -12,12 +12,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func readFile() []byte {
-	dat, err := ioutil.ReadFile("assets/ebay_worten_simple.html")
+	dat, err := ioutil.ReadFile("assets/ebay_worten_item_list.html")
 	if err != nil {
 		log.Panic(err)
 	}
 
-	// fmt.Printf("File content:%s\n", dat)
 	return dat
 }
 
